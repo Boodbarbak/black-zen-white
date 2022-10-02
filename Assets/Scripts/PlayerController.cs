@@ -28,6 +28,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AudioSource bumpSoundEffect;
     [SerializeField] private AudioSource jumpSoundEffect;
     [SerializeField] private AudioSource fallSoundEffect;
+    private float bumpSoundEffectPitch;
+    private float jumpSoundEffectPitch;
+    private float fallSoundEffectPitch;
 
     private Rigidbody2D rb;
     private SpriteRenderer sr;
@@ -39,6 +42,9 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         an = GetComponent<Animator>();
+        bumpSoundEffectPitch = bumpSoundEffect.pitch;
+        jumpSoundEffectPitch = jumpSoundEffect.pitch;
+        fallSoundEffectPitch = fallSoundEffect.pitch;
     }
 
     void FixedUpdate()
@@ -63,6 +69,7 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetButtonDown("Jump") && feetOnGround == true)
         {
+            jumpSoundEffect.pitch = jumpSoundEffectPitch + Random.Range(-0.15f, 0.15f);
             jumpSoundEffect.Play();
             an.Play("Jump");
             isJumping = true;
@@ -99,6 +106,7 @@ public class PlayerController : MonoBehaviour
                 fallTime += Time.deltaTime;
                 if (fallTime > fallAnimationStartFrom && !an.GetCurrentAnimatorStateInfo(0).IsName("Scared"))
                 {
+                    fallSoundEffect.pitch = fallSoundEffectPitch + Random.Range(-0.15f, 0.15f);
                     fallSoundEffect.Play();
                     an.Play("Scared");
                 }
@@ -120,6 +128,7 @@ public class PlayerController : MonoBehaviour
     {
         if (other.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
+            bumpSoundEffect.pitch = bumpSoundEffectPitch + Random.Range(-0.15f, 0.15f);
             bumpSoundEffect.Play();
             isOnGround = true;
             isFalling = false;
