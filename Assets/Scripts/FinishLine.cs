@@ -22,7 +22,11 @@ public class FinishLine : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             int nextSceneIndex = SceneManager.GetActiveScene().buildIndex+1;
-            SceneManager.LoadScene(nextSceneIndex);
+            if (nextSceneIndex >= SceneManager.sceneCountInBuildSettings)
+            {
+                nextSceneIndex = 0;
+            }
+            SceneManager.LoadSceneAsync(nextSceneIndex, LoadSceneMode.Single);
         }
     }
 }
