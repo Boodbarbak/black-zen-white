@@ -27,7 +27,7 @@ public class MultiverseEngine : MonoBehaviour
         float timeLeftInt = Mathf.Ceil(timeLeft);
         timerText.text = (timeLeftInt<10?"0":"") + timeLeftInt;
 
-        if (timeLeft <= 0 || Input.GetButtonDown("Fire3"))
+        if (timeLeft <= 0) // || Input.GetButtonDown("Fire3"))
         {
             timeLeft = timer;
             SwapUniverse();
