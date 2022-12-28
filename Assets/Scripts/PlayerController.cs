@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     private float fallTime;
     public float fallAnimationStartFrom = 0.8f;
     private bool isFalling;
+    public int fallLimit = -20;
 
     private bool feetOnGround;
     private bool isOnGround;
@@ -113,7 +114,16 @@ public class PlayerController : MonoBehaviour
             }
         }
         
-        if (transform.position.y < -20) {
+        if (move != 0 && an.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
+        {
+            an.Play("Move");
+        }
+        else if (move == 0 && an.GetCurrentAnimatorStateInfo(0).IsName("Move"))
+        {
+            an.Play("Idle");
+        }
+
+        if (transform.position.y < fallLimit) {
             // gameEngine.Restart();
             BackToStart();
         }
