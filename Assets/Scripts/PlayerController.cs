@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     public GameObject startPoint;
     public GameEngine gameEngine;
+    public GameObject bestWishes;
 
     public float speed;
     private float move;
@@ -46,6 +47,7 @@ public class PlayerController : MonoBehaviour
         bumpSoundEffectPitch = bumpSoundEffect.pitch;
         jumpSoundEffectPitch = jumpSoundEffect.pitch;
         fallSoundEffectPitch = fallSoundEffect.pitch;
+        bestWishes.SetActive(false);
     }
 
     void FixedUpdate()
@@ -132,6 +134,8 @@ public class PlayerController : MonoBehaviour
     public void BackToStart()
     {
         transform.position = startPoint.transform.position;
+        bestWishes.SetActive(true);
+        bestWishes.GetComponent<Fade>().StartFadeOut();
     }
 
     void OnCollisionEnter2D(Collision2D other)
