@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -17,7 +15,7 @@ public class PlayerController : MonoBehaviour
     public float jumpTime;
 
     private float fallTime;
-    public float fallAnimationStartFrom = 0.8f;
+    public float fallAnimationStartAfter = 0.6f;
     private bool isFalling;
     public int fallLimit = -20;
 
@@ -35,14 +33,14 @@ public class PlayerController : MonoBehaviour
     private float fallSoundEffectPitch;
 
     private Rigidbody2D rb;
-    private SpriteRenderer sr;
+    // private SpriteRenderer sr;
     private Animator an;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        sr = GetComponent<SpriteRenderer>();
+        // sr = GetComponent<SpriteRenderer>();
         an = GetComponent<Animator>();
         bumpSoundEffectPitch = bumpSoundEffect.pitch;
         jumpSoundEffectPitch = jumpSoundEffect.pitch;
@@ -60,7 +58,8 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (move > 0) {
+        if (move > 0)
+        {
             // sr.flipX = false;
             transform.eulerAngles = new Vector3(0, 0, 0);
         }
@@ -70,52 +69,23 @@ public class PlayerController : MonoBehaviour
             transform.eulerAngles = new Vector3(0, 180, 0);
         }
 
-        if (Input.GetButtonDown("Jump") && feetOnGround == true)
+        // Start or continue jumping
+        if (Input.GetButtonDown("Jump") || Input.GetButton("Jump"))
         {
-            jumpSoundEffect.pitch = jumpSoundEffectPitch + Random.Range(-0.15f, 0.15f);
-            jumpSoundEffect.Play();
-            an.Play("Jump");
-            isJumping = true;
-            jumpTimeCounter = jumpTime;
-            rb.velocity = Vector2.up * jumpForce;
+            Jump();
         }
-        else if (Input.GetButton("Jump") && isJumping == true)
+        // Stop jumping and start falling
+        else if (Input.GetButtonUp("Jump") && isJumping)
         {
-            if (jumpTimeCounter > 0)
-            {
-                rb.velocity = Vector2.up * jumpForce;
-                jumpTimeCounter -= Time.deltaTime;
-            }
-            else
-            {
-                isJumping = false;
-            }
-        }
-        else if (Input.GetButtonUp("Jump"))
-        {
-            an.Play("Fall");
-            isJumping = false;
+            StopJump();
         }
 
+        // Fall if not grounded and not jumping
         if (isOnGround == false && isJumping == false)
         {
-            if (isFalling == false)
-            {
-                isFalling = true;
-                fallTime = 0;
-            }
-            else
-            {
-                fallTime += Time.deltaTime;
-                if (fallTime > fallAnimationStartFrom && !an.GetCurrentAnimatorStateInfo(0).IsName("Scared"))
-                {
-                    fallSoundEffect.pitch = fallSoundEffectPitch + Random.Range(-0.15f, 0.15f);
-                    fallSoundEffect.Play();
-                    an.Play("Scared");
-                }
-            }
+            Fall();
         }
-        
+
         if (move != 0 && an.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
         {
             an.Play("Move");
@@ -125,9 +95,68 @@ public class PlayerController : MonoBehaviour
             an.Play("Idle");
         }
 
-        if (transform.position.y < fallLimit) {
+        if (transform.position.y < fallLimit)
+        {
             // gameEngine.Restart();
             BackToStart();
+        }
+    }
+
+    private void Jump()
+    {
+        // Start jumping from the ground
+        if (Input.GetButtonDown("Jump") && isOnGround == true)
+        {
+            jumpSoundEffect.pitch = jumpSoundEffectPitch + Random.Range(-0.15f, 0.15f);
+            jumpSoundEffect.Play();
+            an.Play("Jump");
+            isJumping = true;
+            jumpTimeCounter = jumpTime;
+            rb.velocity = Vector2.up * jumpForce;
+
+            return;
+        }
+
+        if (!isJumping == true || !Input.GetButton("Jump"))
+        {
+            return;
+        }
+
+        // Jump higher or stop jumping if already as high as possible
+        if (jumpTimeCounter > 0)
+        {
+            rb.velocity = Vector2.up * jumpForce;
+            jumpTimeCounter -= Time.deltaTime;
+
+            return;
+        }
+
+        StopJump();
+    }
+
+    private void StopJump()
+    {
+        an.Play("Fall");
+        isJumping = false;
+    }
+
+    private void Fall()
+    {
+        // Start falling
+        if (isFalling == false)
+        {
+            isFalling = true;
+            fallTime = 0;
+            return;
+        }
+
+        // Start fall animation and sound when it is time to
+        fallTime += Time.deltaTime;
+        if (fallTime > fallAnimationStartAfter && !an.GetCurrentAnimatorStateInfo(0).IsName("Scared"))
+        {
+            fallSoundEffect.pitch = fallSoundEffectPitch + Random.Range(-0.15f, 0.15f);
+            fallSoundEffect.Play();
+            an.Play("Scared");
         }
     }
 
@@ -159,9 +188,7 @@ public class PlayerController : MonoBehaviour
             isOnGround = false;
             if (isJumping == false)
             {
-                isFalling = true;
-                fallTime = 0;
-                // an.Play("Scared");
+                Fall();
             }
         }
     }
